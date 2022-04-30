@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <springProperty scop="context" name="spring.application.name" source="spring.application.name" defaultValue=""/>
+    <!--应用名称-->
+    <property name="APP_NAME" value="${spring.application.name}"/>
+    <!--日志文件保存路径-->
+    <property name="LOG_FILE_PATH" value="logs"/>
+    <contextName>${APP_NAME}</contextName>
+    <!--每天记录日志到文件appender-->
+    <!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+    <!--        <filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+    <!--            <level>ERROR</level>-->
+    <!--            <onMatch>DENY</onMatch>-->
+    <!--            <onMismatch>ACCEPT</onMismatch>-->
+    <!--        </filter>-->
+    <!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+    <!--            <fileNamePattern>logs/contract/info/${APP_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+    <!--            <maxHistory>30</maxHistory>-->
+    <!--            <maxFileSize>2GB</maxFileSize>-->
+    <!--        </rollingPolicy>-->
+    <!--        <encoder>-->
+    <!--            <pattern>${FILE_LOG_PATTERN}</pattern>-->
+    <!--        </encoder>-->
+    <!--    </appender>-->
+
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>Error</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>logs/contract/error/${APP_NAME}-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>2GB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--nacos 心跳 INFO 屏蔽-->
+    <logger name="com.alibaba.nacos" level="OFF">
+        <appender-ref ref="FILE_ERROR"/>
+    </logger>
+
+    <!-- 异步处理文件日志，提高生产环境性能 -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <queueSize>1024</queueSize>
+        <!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="FILE_ERROR"/>
+    </appender>
+
+    <!-- 开发环境保留控制台输出，生产环境保留日志文件输出 -->
+    <root>
+        <springProfile name="dev">
+            <appender-ref ref="CONSOLE"/>
+        </springProfile>
+        <springProfile name="default">
+            <appender-ref ref="ASYNC_FILE"/>
+        </springProfile>
+    </root>
+</configuration>

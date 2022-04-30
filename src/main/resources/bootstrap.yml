@@ -1,0 +1,33 @@
+spring:
+  ## 切换生产环境时 profiles属性注释
+  profiles:
+    active: dev
+  application:
+    name: contract-system
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.18.26.118:8848
+        file-extension: yaml
+        group: contract
+        refresh-enabled: true
+        namespace: 80bd150e-32d4-4008-bb2f-34008177eff6
+        username: xaj
+        password: xaj
+        extension-configs:
+          - data-id: contract-share-dev.yaml
+            group: contract
+            refresh: true
+  activiti:
+    #自动更新数据库结构
+    database-schema-update: false
+    #自动检查、部署流程定义文件
+    check-process-definitions: false
+    #流程定义文件存放目录
+    process-definition-location-prefix: classpath:/processes/
+    ##添加这个配置就不会一直调用了**
+    #在流程引擎启动就激活AsyncExecutor,异步 true  false 关闭  （切记关闭）
+    async-executor-activate: false
+snowflakeIdWorker:
+  datacenterId: 1
+  workerId: 1
